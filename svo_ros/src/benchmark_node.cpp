@@ -593,9 +593,9 @@ void BenchmarkNode::runBlenderBenchmark(const std::string& dataset_dir,
 
     ++frame_count_;
     SVO_DEBUG_STREAM("Processing image " << frame_count_ << ".");
-
+    
     processImageBundle({ cur_frame->img() }, cur_frame->id());
-    publishResults({ cur_frame->img() }, ros::Time::now().toNSec());
+    publishResults({ cur_frame->img() }, ros::Time::now().toNSec());  //ros::Time::now().toNSec()
 
     if (svo_->stage() != Stage::kTracking)
     {

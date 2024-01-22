@@ -6,13 +6,13 @@
   <node pkg="svo_ros" type="svo_node" name="svo" clear_params="true" output="screen" >
 
     <!-- Camera topic to subscribe to -->
-    <param name="cam0_topic" value="camera/image_raw" type="str" />
+    <param name="cam0_topic" value="/camera/panoramic/image/compressed" type="str" />
 
     <!-- Camera calibration file -->
     <param name="calib_file" value="$(arg calib_file)" />
 
     <!--Parameters-->
-    <rosparam file="$(find svo_ros)/param/pinhole.yaml" />
+    <rosparam file="$(find svo_ros)/param/omni.yaml" />
     <param name="map_scale" value="1" />
     
     <!-- Loop closure detection parameters -->

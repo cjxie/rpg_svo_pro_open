@@ -76,6 +76,7 @@ SvoInterface::SvoInterface(
   visualizer_.reset(
         new Visualizer(svo_->options_.trace_dir, pnh_, ncam_->getNumCameras()));
 
+  // IMU is required for backend optimization
   if(vk::param<bool>(pnh_, "use_imu", false))
   {
     imu_handler_ = factory::getImuHandler(pnh_);
@@ -360,6 +361,44 @@ void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
     svo_->start();
 
   imageCallbackPostprocessing();
+}
+
+void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg)
+{
+  if(idle_)
+  return;
+
+  cv::Mat image;
+  try
+  {
+    image = cv_bridge::toCvCopy(msg)->image;
+  }
+  catch (cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge exception: %s", e.what());
+  }
+
+  std::vector<cv::Mat> images;
+  images.push_back(image.clone());
+
+  if(!setImuPrior(msg->header.stamp.toNSec()))
+  {
+    VLOG(3) << "Could not align gravity! Attempting again in next iteration.";
+    return;
+  }
+
+  imageCallbackPreprocessing(msg->header.stamp.toNSec());
+
+  processImageBundle(images, msg->header.stamp.toNSec());
+
+
+  publishResults(images, msg->header.stamp.toNSec());
+
+  if(svo_->stage() == Stage::kPaused && automatic_reinitialization_)
+    svo_->start();
+
+  imageCallbackPostprocessing();
+
 }
 
 void SvoInterface::stereoCallback(

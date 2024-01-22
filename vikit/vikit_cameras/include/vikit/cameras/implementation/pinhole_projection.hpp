@@ -2,6 +2,7 @@
 #include <glog/logging.h>
 #include <vikit/cameras/pinhole_projection.h>
 
+
 namespace vk {
 namespace cameras {
 

@@ -28,7 +28,8 @@ NCamera::Ptr NCamera::loadFromYaml(const std::string& yaml_file)
   try {
     YAML::Node doc = YAML::LoadFile(yaml_file.c_str());
     NCamera::Ptr ncam = doc.as<NCamera::Ptr>();
-
+    
+    // initialize camera done...
     std::string basename = vk::path_utils::getBaseName(yaml_file);
     if(basename.empty())
     {
@@ -38,6 +39,7 @@ NCamera::Ptr NCamera::loadFromYaml(const std::string& yaml_file)
     const YAML::Node& cameras_node = doc["cameras"];
     CHECK_EQ(cameras_node.size(), ncam->numCameras())
         << "YAML file and NCamera are not consistent.";
+    // add the mask to camera
     for(size_t i=0; i<cameras_node.size(); i++)
     {
       const YAML::Node& cam_node = (cameras_node[i])["camera"];
@@ -48,8 +50,8 @@ NCamera::Ptr NCamera::loadFromYaml(const std::string& yaml_file)
         cam->loadMask(basename + "/" + mask.as<std::string>());
       }
     }
-
-    return ncam;
+    std::cout<< "Initialize camera done..." << std::endl;
+    return ncam;  
   } catch (const std::exception& ex) {
     LOG(ERROR) << "Failed to load NCamera from file " << yaml_file << " with the error: \n"
                << ex.what();

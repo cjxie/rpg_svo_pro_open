@@ -276,7 +276,6 @@ public:
 
   /// Will reset the map as soon as the current frame is finished processing.
   void reset() { set_reset_ = true; }
-
   /// Get the current stage of the algorithm.
   inline Stage stage() const { return stage_; }
   inline std::string stageStr() const { return kStageName.at(stage_); }

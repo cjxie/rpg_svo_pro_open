@@ -81,6 +81,7 @@ bool convert<std::shared_ptr<vk::cameras::CameraGeometryBase> >::decode(
       }
       else if(camera_type == "omni")
       {
+        std::cout<<"camera_yaml_serialization"<<std::endl;
         camera.reset(new vk::cameras::OmniGeometry(
                     image_width, image_height, intrinsics));
       }

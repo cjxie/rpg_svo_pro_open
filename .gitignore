@@ -1,1 +1,6 @@
 .vscode/
+*.bag
+devel/*
+logs/*
+build/*
+*/data

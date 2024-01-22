@@ -24,8 +24,9 @@ CameraGeometryBase::Ptr CameraGeometryBase::loadFromYaml(
   try {
     YAML::Node doc = YAML::LoadFile(yaml_file.c_str());
     CameraGeometryBase::Ptr cam = doc.as<CameraGeometryBase::Ptr>();
-
+    
     std::string basename = vk::path_utils::getBaseName(yaml_file);
+    std::cout<< basename + " " +  "camerageometrybase" <<std::endl;
     if(basename.empty())
     {
       return cam;
@@ -60,6 +61,7 @@ void CameraGeometryBase::backProject3(
 }
 
 void CameraGeometryBase::setMask(const cv::Mat& mask) {
+  std::cout<<mask.size<<std::endl;
   CHECK_EQ(height_, mask.rows);
   CHECK_EQ(width_,  mask.cols);
   CHECK_EQ(mask.type(), CV_8UC1);
@@ -72,6 +74,7 @@ void CameraGeometryBase::loadMask(const std::string& mask_file)
   if(mask.data)
     setMask(mask);
   else
+    LOG(INFO) << mask_file;
     LOG(FATAL) << "Unable to load mask file.";
 }
 

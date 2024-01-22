@@ -1,0 +1,31 @@
+cameras:
+- camera:
+    distortion:
+      parameters:
+        cols: 1
+        rows: 0
+        data: []
+      type: none
+    image_width: 1920
+    image_height: 1080
+    intrinsics:
+      cols: 1
+      # xi, distortion, projection, principal_point, mask_relative_radii
+      data: [1.5027315915359778e+00, 
+      -1.3611306175891333e-01, 2.3508209887736620e-01, -4.0859703137627844e-03, -6.8372391577539507e-03,
+      6.6774582550471905e+02, 6.6402937007955575e+02, 9.7628507216931200e+02, 5.7084122055440332e+02,
+      0.0, 0.0]
+      rows: 11
+    label: cam0
+    line-delay-nanoseconds: 0
+    type: omni
+    # mask: none
+  T_B_C:
+    cols: 4
+    rows: 4
+    data: [ 1., 0., 0., 0.0,
+            0., 1., 0., 0.0,
+            0., 0., 1., 0.0,
+            0., 0., 0., 1.]
+label: /cata_ocam_model
+

@@ -22,6 +22,8 @@ init(autoreset=True)
 def get_cpu_info():
     command = "cat /proc/cpuinfo"
     all_info = subprocess.check_output(command, shell=True).strip()
+    # for line in all_info.splitlines():
+    #     if "model name" in line.decode():
     for line in all_info.split("\n"):
         if "model name" in line:
             model_name = re.sub(".*model name.*:", "", line, 1).strip()
@@ -107,6 +109,7 @@ def run_experiments(experiment_file, num_monte_carlo_runs=None,
 
     # pipeline parameters
     if 'settings' in experiment_params:
+        # base_params = dict(base_params.items() | experiment_params['settings'].items())
         base_params = dict(base_params.items() +
                            experiment_params['settings'].items())
     # benchmark node flag: verbosity, etc.
@@ -132,7 +135,7 @@ def run_experiments(experiment_file, num_monte_carlo_runs=None,
 
     # store the trace directories of all datasets
     trace_dirs = list()
-
+    
     # Loop over each dataset
     for dataset_cfg in experiment_params['datasets']:
 
@@ -150,7 +153,7 @@ def run_experiments(experiment_file, num_monte_carlo_runs=None,
                 cur_params['dataset_directory'])
 
         # Load dataset parameters
-        cur_params['dataset_is_blender'] = False
+        cur_params['dataset_is_blender'] = False # False
         dataset_params_file = os.path.join(cur_params['dataset_directory'],
                                            'dataset.yaml')
         if os.path.exists(dataset_params_file):

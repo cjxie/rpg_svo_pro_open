@@ -13,7 +13,7 @@ intrinsics:
 label: cam0
 line-delay-nanoseconds: 0
 type: omni
-mask: test_mask.png
+# mask: test_mask.png
 T_B_C:
   cols: 4
   rows: 4

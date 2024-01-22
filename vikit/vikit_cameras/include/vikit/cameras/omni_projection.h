@@ -15,11 +15,16 @@ class OmniProjection
   const CameraGeometryBase::Type cam_type_ = CameraGeometryBase::Type::kOmni;
 
   // TODO(tcies) Outsource distortion to distortion class?
-  OmniProjection(const Eigen::Matrix<double, 5, 1>& polynomial,
-                 const Eigen::Vector2d& principal_point,
-                 const Eigen::Vector3d& distortion,
-                 const Eigen::Matrix<double, kInversePolynomialOrder, 1>&
-                 inverse_polynomial);
+  // OmniProjection(const Eigen::Matrix<double, 5, 1>& polynomial,
+  //                const Eigen::Vector2d& principal_point,
+  //                const Eigen::Vector3d& distortion,
+  //                const Eigen::Matrix<double, kInversePolynomialOrder, 1>& inverse_polynomial);
+  
+  // Mei model
+  OmniProjection(const double &xi, 
+                 const Eigen::Matrix<double, 4,1> &distortion, 
+                 const Eigen::Matrix<double, 4,1> &projection,
+                 const Eigen::Vector2d& principal_point);
 
   bool backProject3(
       const Eigen::Ref<const Eigen::Vector2d>& keypoint,
@@ -53,13 +58,27 @@ class OmniProjection
   // Returns the distortion parameters
   Eigen::VectorXd getDistortionParameters() const;
 
- private:
-  const Eigen::Matrix<double, 5, 1> polynomial_;
-  const Eigen::Vector2d principal_point_;
-  const Eigen::Matrix<double, 12, 1> inverse_polynomial_;
 
-  const Eigen::Matrix2d affine_correction_;
-  const Eigen::Matrix2d affine_correction_inverse_;
+ private:
+  // scaramuzza parameter
+  // const Eigen::Matrix<double, 5, 1> polynomial_;
+  const Eigen::Vector2d principal_point_;
+  // const Eigen::Matrix<double, 12, 1> inverse_polynomial_;
+
+  // Mei parameter
+  const double xi_;
+  
+  double k1_;
+  double k2_;
+  double p1_;
+  double p2_;
+  
+  const Eigen::Matrix<double, 4, 1> distortion_;
+  const Eigen::Matrix<double, 4, 1> projection_;
+
+
+  // const Eigen::Matrix2d affine_correction_;
+  // const Eigen::Matrix2d affine_correction_inverse_;
 };
 
 }  // namespace cameras

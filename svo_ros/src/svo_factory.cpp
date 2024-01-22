@@ -34,6 +34,7 @@ namespace factory {
 BaseOptions loadBaseOptions(const ros::NodeHandle& pnh, bool forward_default)
 {
   BaseOptions o;
+  std::cout<< "Loading BaseOptions..." <<std::endl;
   o.max_n_kfs = vk::param<int>(pnh, "max_n_kfs", 5);
   o.use_imu = vk::param<bool>(pnh, "use_imu", false);
   o.trace_dir = vk::param<std::string>(pnh, "trace_dir", ros::package::getPath("svo")+"/trace");
@@ -83,6 +84,7 @@ BaseOptions loadBaseOptions(const ros::NodeHandle& pnh, bool forward_default)
 DetectorOptions loadDetectorOptions(const ros::NodeHandle& pnh)
 {
   DetectorOptions o;
+  std::cout<< "Loading DetectorOptions..." <<std::endl;
   o.cell_size = vk::param<int>(pnh, "grid_size", 35);
   o.max_level = vk::param<int>(pnh, "n_pyr_levels", 3) - 1;
   o.threshold_primary = vk::param<int>(pnh, "detector_threshold_primary", 10);
@@ -98,6 +100,7 @@ DetectorOptions loadDetectorOptions(const ros::NodeHandle& pnh)
 DepthFilterOptions loadDepthFilterOptions(const ros::NodeHandle& pnh)
 {
   DepthFilterOptions o;
+  std::cout<< "Loading DepthFilterOptions..." <<std::endl;
   o.max_search_level = vk::param<int>(pnh, "n_pyr_levels", 3) - 1;
   o.use_threaded_depthfilter =
       vk::param<bool>(pnh, "use_threaded_depthfilter", true);
@@ -127,6 +130,7 @@ DepthFilterOptions loadDepthFilterOptions(const ros::NodeHandle& pnh)
 InitializationOptions loadInitializationOptions(const ros::NodeHandle& pnh)
 {
   InitializationOptions o;
+  std::cout<< "Loading InitializationOptions..." <<std::endl;
   o.init_min_features = vk::param<int>(pnh, "init_min_features", 100);
   o.init_min_tracked = vk::param<int>(pnh, "init_min_tracked", 80);
   o.init_min_inliers = vk::param<int>(pnh, "init_min_inliers", 70);
@@ -151,6 +155,7 @@ InitializationOptions loadInitializationOptions(const ros::NodeHandle& pnh)
 FeatureTrackerOptions loadTrackerOptions(const ros::NodeHandle& pnh)
 {
   FeatureTrackerOptions o;
+  std::cout<< "Loading TrakerOptions..." <<std::endl;
   o.klt_max_level = vk::param<int>(pnh, "klt_max_level", 4);
   o.klt_min_level = vk::param<int>(pnh, "klt_min_level", 0.001);
   return o;
@@ -159,6 +164,7 @@ FeatureTrackerOptions loadTrackerOptions(const ros::NodeHandle& pnh)
 ReprojectorOptions loadReprojectorOptions(const ros::NodeHandle& pnh)
 {
   ReprojectorOptions o;
+  std::cout<< "Loading ReprojectorOptions..." <<std::endl;
   o.max_n_kfs = vk::param<int>(pnh, "reprojector_max_n_kfs", 5);
   o.max_n_features_per_frame = vk::param<int>(pnh, "max_fts", 160);
   o.cell_size = vk::param<int>(pnh, "grid_size", 35);
