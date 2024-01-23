@@ -5,6 +5,7 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>    // user-input
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/Imu.h>
 
 
@@ -81,6 +82,7 @@ public:
   void monoCallback(const sensor_msgs::ImageConstPtr& msg);
   // Subscribe CompressedImage
   void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg);
+  
   void stereoCallback(
       const sensor_msgs::ImageConstPtr& msg0,
       const sensor_msgs::ImageConstPtr& msg1);
