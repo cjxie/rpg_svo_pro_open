@@ -21,6 +21,8 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <image_transport/subscriber_filter.h>
 #include <image_transport/image_transport.h>
+// #include <image_transport/compressed_image_transport.h>
+#include <compressed_image_transport/compressed_subscriber.h>
 #include <sensor_msgs/image_encodings.h>
 #include <cv_bridge/cv_bridge.h>
 #include <vikit/params_helper.h>
@@ -526,11 +528,17 @@ void SvoInterface::monoLoop()
   ros::CallbackQueue queue;
   nh.setCallbackQueue(&queue);
 
-  image_transport::ImageTransport it(nh);
+  // image_transport::ImageTransport it(nh);
+
   std::string image_topic =
       vk::param<std::string>(pnh_, "cam0_topic", "camera/image_raw");
-  image_transport::Subscriber it_sub =
-      it.subscribe(image_topic, 5, &svo::SvoInterface::monoCallback, this);
+
+  // image_transport::Subscriber it_sub = it.subscribe(image_topic, 5, &svo::SvoInterface::monoCallback, this);
+  
+ compressed_image_transport::CompressedSubscriber cit_sub;
+  
+ cit_sub.subscribeImpl(nh, image_topic, 5, boost::function<void(const sensor_msgs::CompressedImageConstPtr&)>(svo::SvoInterface::monoCallback)
+ &ros::VoidPtr(), image_transport::TransportHints());
 
   while(ros::ok() && !quit_)
   {
