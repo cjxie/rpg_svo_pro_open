@@ -353,7 +353,7 @@ void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
   imageCallbackPreprocessing(msg->header.stamp.toNSec());
 
   processImageBundle(images, msg->header.stamp.toNSec());
-
+  // std::cout << "Timestamp : " << msg->header.stamp.toSec() << "." << msg->header.stamp.toNSec() << std::endl;
 
   publishResults(images, msg->header.stamp.toNSec());
 
@@ -363,43 +363,43 @@ void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
   imageCallbackPostprocessing();
 }
 
-void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg)
-{
-  if(idle_)
-  return;
+// void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg)
+// {
+//   if(idle_)
+//   return;
 
-  cv::Mat image;
-  try
-  {
-    image = cv_bridge::toCvCopy(msg)->image;
-  }
-  catch (cv_bridge::Exception& e)
-  {
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-  }
+//   cv::Mat image;
+//   try
+//   {
+//     image = cv_bridge::toCvCopy(msg)->image;
+//   }
+//   catch (cv_bridge::Exception& e)
+//   {
+//     ROS_ERROR("cv_bridge exception: %s", e.what());
+//   }
 
-  std::vector<cv::Mat> images;
-  images.push_back(image.clone());
+//   std::vector<cv::Mat> images;
+//   images.push_back(image.clone());
 
-  if(!setImuPrior(msg->header.stamp.toNSec()))
-  {
-    VLOG(3) << "Could not align gravity! Attempting again in next iteration.";
-    return;
-  }
+//   if(!setImuPrior(msg->header.stamp.toNSec()))
+//   {
+//     VLOG(3) << "Could not align gravity! Attempting again in next iteration.";
+//     return;
+//   }
 
-  imageCallbackPreprocessing(msg->header.stamp.toNSec());
+//   imageCallbackPreprocessing(msg->header.stamp.toNSec());
 
-  processImageBundle(images, msg->header.stamp.toNSec());
+//   processImageBundle(images, msg->header.stamp.toNSec());
 
 
-  publishResults(images, msg->header.stamp.toNSec());
+//   publishResults(images, msg->header.stamp.toNSec());
 
-  if(svo_->stage() == Stage::kPaused && automatic_reinitialization_)
-    svo_->start();
+//   if(svo_->stage() == Stage::kPaused && automatic_reinitialization_)
+//     svo_->start();
 
-  imageCallbackPostprocessing();
+//   imageCallbackPostprocessing();
 
-}
+// }
 
 void SvoInterface::stereoCallback(
     const sensor_msgs::ImageConstPtr& msg0,

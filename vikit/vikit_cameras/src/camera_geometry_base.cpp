@@ -61,21 +61,37 @@ void CameraGeometryBase::backProject3(
 }
 
 void CameraGeometryBase::setMask(const cv::Mat& mask) {
-  std::cout<<mask.size<<std::endl;
+  // cv::Mat temp_mask(mask.rows, mask.cols, CV_8UC1);
+  // mask.convertTo(temp_mask, CV_8UC1);
+
   CHECK_EQ(height_, mask.rows);
   CHECK_EQ(width_,  mask.cols);
+  // std::cout<<height_<< mask.rows<< std::endl;
+  // std::cout<<width_<< mask.cols<< std::endl;
+  // std::cout<<mask.type()<<std::endl;
+  // std::cout<<CV_8U<<std::endl;
   CHECK_EQ(mask.type(), CV_8UC1);
+  
   mask_ = mask;
 }
 
 void CameraGeometryBase::loadMask(const std::string& mask_file)
 {
+
   cv::Mat mask(cv::imread(mask_file, 0));
+  std::cout<<"Found the mask file in " <<mask_file<< std::endl;
   if(mask.data)
+  {
+    std::cout<<"loadmask"<<std::endl;
     setMask(mask);
+  }
   else
+  {
+    std::cout<<"loadmask failed"<<std::endl;
     LOG(INFO) << mask_file;
     LOG(FATAL) << "Unable to load mask file.";
+  }
+
 }
 
 bool CameraGeometryBase::isMasked(

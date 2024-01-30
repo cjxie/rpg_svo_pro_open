@@ -35,6 +35,10 @@ class OmniProjection
       Eigen::Vector2d* out_keypoint,
       Eigen::Matrix<double, 2, 3>* out_jacobian_point) const;
 
+  void distortion(const Eigen::Vector2d& p_u, Eigen::Vector2d& d_u) const;
+
+  void distortion(const Eigen::Vector2d& p_u, Eigen::Vector2d& d_u, Eigen::Matrix2d& J) const;
+
   double errorMultiplier() const;
 
   double getAngleError(double img_err) const;

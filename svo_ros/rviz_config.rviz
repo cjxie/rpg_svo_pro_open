@@ -152,7 +152,6 @@ Visualization Manager:
       Marker Topic: /svo/keyframes
       Name: svo_kfs
       Namespaces:
-        active_kfs: true
         cams: true
         kfs: true
       Queue Size: 100
@@ -447,17 +446,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.17907825112342834
-        Y: 3.1379828453063965
-        Z: 2.7883224487304688
+        X: -0.7882429361343384
+        Y: 1.7086986303329468
+        Z: 3.5598559379577637
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2597967386245728
+      Pitch: -0.33979642391204834
       Target Frame: <Fixed Frame>
-      Yaw: 1.4704231023788452
+      Yaw: 4.563608646392822
     Saved: ~
 Window Geometry:
   /svo/image/0:

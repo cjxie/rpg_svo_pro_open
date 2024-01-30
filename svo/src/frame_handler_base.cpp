@@ -135,8 +135,10 @@ FrameHandlerBase::FrameHandlerBase(const BaseOptions& base_options, const Reproj
   sparse_img_align_.reset(new SparseImgAlign(SparseImgAlign::getDefaultSolverOptions(), img_align_options));
   pose_optimizer_.reset(new PoseOptimizer(PoseOptimizer::getDefaultSolverOptions()));
   if (options_.poseoptim_using_unit_sphere)
+  {
+    std::cout<< "kBearingVectorDiff"<< std::endl;
     pose_optimizer_->setErrorType(PoseOptimizer::ErrorType::kBearingVectorDiff);
-
+  }
   // DEBUG ***
   //pose_optimizer_->initTracing(options_.trace_dir);
   DetectorOptions detector_options2 = detector_options;

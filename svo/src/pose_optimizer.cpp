@@ -137,11 +137,13 @@ double PoseOptimizer::evaluateErrorImpl(
       const int scale = (1 << frame->level_vec_(i));
       double unwhitened_error, chi2_error;
       double measurement_sigma = measurement_sigma_ * scale;
+
       if(isEdgelet(frame->type_vec_[i]))
       {
         // Edgelets should have less weight than corners.
         constexpr double kEdgeletSigmaExtraFactor = 2.0;
         measurement_sigma *= kEdgeletSigmaExtraFactor;
+        
         if(err_type_ == ErrorType::kUnitPlane)
           pose_optimizer_utils::calculateEdgeletResidualUnitPlane(
                 frame->f_vec_.col(i), xyz_world, frame->grad_vec_.col(i),
@@ -440,9 +442,19 @@ void calculateFeatureResidualBearingVectorDiff(
 
   // Prediction error.
   Vector3d e = f - xyz_in_cam.normalized();
+  
   if(unwhitened_error)
+  {
     *unwhitened_error = e.norm();
+    // std::cout<<"f = " << f.transpose() << " " <<"xyz_in_cam = " <<xyz_in_cam.transpose() << std::endl;
+    // std::cout<<"Predicted error = " << e.transpose() << std::endl;
+    // std::cout<<"unwhitened error = " << *unwhitened_error << std::endl;
+  }
 
+  // if(*unwhitened_error < 0.0)
+  // {
+
+  // }
   // Whitened error.
   double R = 1.0 / measurement_sigma;
   e *= R;
@@ -589,7 +601,16 @@ void calculateEdgeletResidualBearingVectorDiff(
   double scale_ratio = f_diff.norm() / px_diff.norm();
   double e = e_img * scale_ratio;
   if(unwhitened_error)
+  {
     *unwhitened_error = std::abs(e);
+    // std::cout<<"f = " << f.transpose() << " " <<"xyz_in_cam = " <<f_est.transpose() << std::endl;
+    // std::cout<<"Predicted error = " << e<< std::endl;
+    // std::cout<<"unwhitened error = " << *unwhitened_error << std::endl;
+  }
+  // if(*unwhitened_error < 0.0)
+  // {
+
+  // }
 
   // Whiten error: R*e, where R is the square root of information matrix (1/sigma).
   double R = 1.0 / measurement_sigma;

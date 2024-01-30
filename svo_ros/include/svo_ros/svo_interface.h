@@ -80,7 +80,7 @@ public:
   // Subscription and callbacks
   void monoCallback(const sensor_msgs::ImageConstPtr& msg);
   // Subscribe CompressedImage
-  void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg);
+  // void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg);
   void stereoCallback(
       const sensor_msgs::ImageConstPtr& msg0,
       const sensor_msgs::ImageConstPtr& msg1);

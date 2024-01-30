@@ -440,6 +440,7 @@ void computeResidualsOfFrame(
     Eigen::Vector2d uv_cur;
     cur_frame->cam()->project3(xyz_cur, &uv_cur);
     const Vector2ft uv_cur_pyr = uv_cur.cast<FloatType>() * scale;
+    // std::cout<< uv_cur_pyr <<std::endl;
 
     // compute top left coordinate of patch to be interpolated
     const FloatType u_tl = uv_cur_pyr[0] - patch_center;
@@ -461,6 +462,9 @@ void computeResidualsOfFrame(
 
     const int u_tl_i = std::floor(u_tl);
     const int v_tl_i = std::floor(v_tl);
+
+    // std::cout<< "u_tl_i: " << u_tl_i
+    //          << "v_tl_i: " << v_tl_i <<std::endl;
 
     // compute bilateral interpolation weights for the current image
     const FloatType subpix_u_tl = u_tl-u_tl_i;
