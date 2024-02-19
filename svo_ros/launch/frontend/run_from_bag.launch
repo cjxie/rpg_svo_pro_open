@@ -2,12 +2,16 @@
   <arg name="cam_name" />
   <arg name="calib_file" default="$(find svo_ros)/param/calib/$(arg cam_name).yaml"/>
   <arg name="parameter_file" default="$(arg cam_name).yaml"/>
+  <arg name="topic" default="/camera/panoramic/image/compressed"/>
+
+  <!-- Image Transport node -->
+  <!-- <node name="it" pkg="image_transport" type="republish" args="compressed in:=$(arg topic) raw out:=/image_raw" /> -->
 
   <!-- SVO node -->
   <node pkg="svo_ros" type="svo_node" name="svo" clear_params="true" output="screen" >
 
     <!-- Camera topic to subscribe to -->
-    <param name="cam0_topic" value="camera/image_raw" type="str" />
+    <param name="cam0_topic" value="$(arg topic)" type="str" />
 
     <!-- Camera calibration file -->
     <param name="calib_file" value="$(arg calib_file)" />

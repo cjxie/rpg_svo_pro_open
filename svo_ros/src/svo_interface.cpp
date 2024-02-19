@@ -1,4 +1,5 @@
 #include <svo_ros/svo_interface.h>
+#include <opencv2/highgui/highgui.hpp>
 
 #include <ros/callback_queue.h>
 
@@ -328,47 +329,10 @@ bool SvoInterface::setImuPrior(const int64_t timestamp_nanoseconds)
   return true;
 }
 
-void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
-{
-  if(idle_)
-    return;
-
-  cv::Mat image;
-  try
-  {
-    image = cv_bridge::toCvCopy(msg)->image;
-  }
-  catch (cv_bridge::Exception& e)
-  {
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-  }
-
-  std::vector<cv::Mat> images;
-  images.push_back(image.clone());
-
-  if(!setImuPrior(msg->header.stamp.toNSec()))
-  {
-    VLOG(3) << "Could not align gravity! Attempting again in next iteration.";
-    return;
-  }
-
-  imageCallbackPreprocessing(msg->header.stamp.toNSec());
-
-  processImageBundle(images, msg->header.stamp.toNSec());
-  // std::cout << "Timestamp : " << msg->header.stamp.toSec() << "." << msg->header.stamp.toNSec() << std::endl;
-
-  publishResults(images, msg->header.stamp.toNSec());
-
-  if(svo_->stage() == Stage::kPaused && automatic_reinitialization_)
-    svo_->start();
-
-  imageCallbackPostprocessing();
-}
-
-// void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg)
+// void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
 // {
 //   if(idle_)
-//   return;
+//     return;
 
 //   cv::Mat image;
 //   try
@@ -392,7 +356,7 @@ void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
 //   imageCallbackPreprocessing(msg->header.stamp.toNSec());
 
 //   processImageBundle(images, msg->header.stamp.toNSec());
-
+//   // std::cout << "Timestamp : " << msg->header.stamp.toSec() << "." << msg->header.stamp.toNSec() << std::endl;
 
 //   publishResults(images, msg->header.stamp.toNSec());
 
@@ -400,8 +364,45 @@ void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
 //     svo_->start();
 
 //   imageCallbackPostprocessing();
-
 // }
+
+void SvoInterface::monoCallback(const sensor_msgs::CompressedImageConstPtr& msg)
+{
+  if(idle_)
+  return;
+
+  cv::Mat image;
+  try
+  {
+    image = cv::imdecode(cv::Mat(msg->data),1);
+  }
+  catch (cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge exception: %s", e.what());
+  }
+
+  std::vector<cv::Mat> images;
+  images.push_back(image.clone());
+
+  if(!setImuPrior(msg->header.stamp.toNSec()))
+  {
+    VLOG(3) << "Could not align gravity! Attempting again in next iteration.";
+    return;
+  }
+
+  imageCallbackPreprocessing(msg->header.stamp.toNSec());
+
+  processImageBundle(images, msg->header.stamp.toNSec());
+
+
+  publishResults(images, msg->header.stamp.toNSec());
+
+  if(svo_->stage() == Stage::kPaused && automatic_reinitialization_)
+    svo_->start();
+
+  imageCallbackPostprocessing();
+
+}
 
 void SvoInterface::stereoCallback(
     const sensor_msgs::ImageConstPtr& msg0,
@@ -528,17 +529,20 @@ void SvoInterface::monoLoop()
   ros::CallbackQueue queue;
   nh.setCallbackQueue(&queue);
 
-  // image_transport::ImageTransport it(nh);
+  image_transport::ImageTransport it(nh);
+  // image_transport::TransportHints th("compressed");
 
   std::string image_topic =
       vk::param<std::string>(pnh_, "cam0_topic", "camera/image_raw");
 
   // image_transport::Subscriber it_sub = it.subscribe(image_topic, 5, &svo::SvoInterface::monoCallback, this);
   
- compressed_image_transport::CompressedSubscriber cit_sub;
+  ros::Subscriber it_sub = nh.subscribe(image_topic, 10, &svo::SvoInterface::monoCallback,this); // this
+
+//  compressed_image_transport::CompressedSubscriber cit_sub;
   
- cit_sub.subscribeImpl(nh, image_topic, 5, boost::function<void(const sensor_msgs::CompressedImageConstPtr&)>(svo::SvoInterface::monoCallback)
- &ros::VoidPtr(), image_transport::TransportHints());
+//  cit_sub.subscribeImpl(nh, image_topic, 5, boost::function<void(const sensor_msgs::CompressedImageConstPtr&)>(svo::SvoInterface::monoCallback)
+//  &ros::VoidPtr(), image_transport::TransportHints());
 
   while(ros::ok() && !quit_)
   {
