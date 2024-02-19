@@ -18,7 +18,7 @@ repositories:
   fast_neon:
     type: git
     url: http://github.com/uzh-rpg/fast_neon.git
-    version: test/aarch64-compilation
+    version: master
   gflags_catkin:
     type: git
     url: http://github.com/ethz-asl/gflags_catkin.git
