@@ -18,7 +18,7 @@ RUN mkdir svo_ws && \
     cd svo_ws && \
     catkin config --init --mkdirs --extend /opt/ros/noetic --cmake-args -DCMAKE_BUILD_TYPE=Release -DEIGEN3_INCLUDE_DIR=/usr/include/eigen3 && \
     cd src&& \
-    git clone https://github.com/cjxie/rpg_svo_pro_open.git
+    git clone -b global_map https://github.com/cjxie/rpg_svo_pro_open.git
     
 # Get dependencies
 RUN cd svo_ws/src && \
@@ -31,7 +31,7 @@ RUN cd svo_ws/src && \
 
 # Build rpg_svo_pro_open with global map functionality
 RUN cd svo_ws/src &&\
-    rm -f rpg_svo_pro_open/svo_global_map/CATKIN_IGNORE &&\
+    # rm -f rpg_svo_pro_open/svo_global_map/CATKIN_IGNORE &&\
     git clone https://github.com/escondido-maps/gtsam.git &&\
     cd gtsam &&\
     git checkout rpg-svo-pro-version
