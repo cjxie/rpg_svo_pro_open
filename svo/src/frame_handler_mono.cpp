@@ -44,7 +44,7 @@ UpdateResult FrameHandlerMono::processFrameBundle()
   }
   else if(stage_ == Stage::kInitializing)
   {
-    res = processFirstFrame();
+    res = processFirstFrame();  // 
   }
   else if(stage_ == Stage::kRelocalization)
   {

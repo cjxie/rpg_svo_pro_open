@@ -1,7 +1,9 @@
 #include <svo_ros/svo_interface.h>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/ccalib/omnidir.hpp>
 
 #include <ros/callback_queue.h>
+#include <ros/ros.h>
 
 #include <svo_ros/svo_factory.h>
 #include <svo_ros/visualizer.h>
@@ -28,6 +30,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <vikit/params_helper.h>
 #include <vikit/timer.h>
+#include "vikit/cameras/camera_geometry.h"
 #include <svo_ros/ceres_backend_factory.h>
 
 
@@ -88,6 +91,7 @@ SvoInterface::SvoInterface(
 
   if(vk::param<bool>(pnh_, "use_ceres_backend", false))
   {
+    std::cout << "Use ceres backend" << std::endl;
     ceres_backend_interface_ = ceres_backend_factory::makeBackend(pnh_,ncam_);
     if(imu_handler_){
       svo_->setBundleAdjuster(ceres_backend_interface_);
@@ -102,6 +106,7 @@ SvoInterface::SvoInterface(
 #ifdef SVO_USE_GTSAM_BACKEND
   if(vk::param<bool>(pnh_, "use_backend", false))
   {
+    std::cout << "Use gtsam backend" << std::endl;
     backend_interface_ = svo::backend_factory::makeBackend(pnh_);
     ceres_backend_publisher_.reset(new CeresBackendPublisher(svo_->options_.trace_dir, pnh_));
     svo_->setBundleAdjuster(backend_interface_);
@@ -135,6 +140,7 @@ SvoInterface::SvoInterface(
 #endif
   }
 
+  // set framehanlder to initialization status 
   svo_->start();
 }
 
@@ -169,6 +175,8 @@ void SvoInterface::processImageBundle(
       }
     }
   }
+
+  // start the whole process
   svo_->addImageBundle(images, timestamp_nanoseconds);
 }
 
@@ -206,6 +214,13 @@ void SvoInterface::publishResults(
       visualizer_->publishImagesWithFeatures(
             svo_->getLastFrames(), timestamp_nanoseconds,
             draw_boundary);
+
+      // todo: add unwrapped publisher here
+      if (use_unwrapped_)
+      {
+        visualizer_->publishUnwrapped(images, timestamp_nanoseconds, ncam_);
+      }
+
 #ifdef SVO_LOOP_CLOSING
       // detections
       if (svo_->lc_)
@@ -305,7 +320,9 @@ bool SvoInterface::setImuPrior(const int64_t timestamp_nanoseconds)
          R_imu_world))
     {
       VLOG(3) << "Set initial orientation from accelerometer measurements.";
+
       svo_->setRotationPrior(R_imu_world);
+      std::cout<< "R_imu_world: \n" << R_imu_world << std::endl;
     }
     else
     {
@@ -329,52 +346,16 @@ bool SvoInterface::setImuPrior(const int64_t timestamp_nanoseconds)
   return true;
 }
 
-// void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
-// {
-//   if(idle_)
-//     return;
-
-//   cv::Mat image;
-//   try
-//   {
-//     image = cv_bridge::toCvCopy(msg)->image;
-//   }
-//   catch (cv_bridge::Exception& e)
-//   {
-//     ROS_ERROR("cv_bridge exception: %s", e.what());
-//   }
-
-//   std::vector<cv::Mat> images;
-//   images.push_back(image.clone());
-
-//   if(!setImuPrior(msg->header.stamp.toNSec()))
-//   {
-//     VLOG(3) << "Could not align gravity! Attempting again in next iteration.";
-//     return;
-//   }
-
-//   imageCallbackPreprocessing(msg->header.stamp.toNSec());
-
-//   processImageBundle(images, msg->header.stamp.toNSec());
-//   // std::cout << "Timestamp : " << msg->header.stamp.toSec() << "." << msg->header.stamp.toNSec() << std::endl;
-
-//   publishResults(images, msg->header.stamp.toNSec());
-
-//   if(svo_->stage() == Stage::kPaused && automatic_reinitialization_)
-//     svo_->start();
-
-//   imageCallbackPostprocessing();
-// }
-
-void SvoInterface::monoCallback(const sensor_msgs::CompressedImageConstPtr& msg)
+void SvoInterface::monoCallback(const sensor_msgs::ImageConstPtr& msg)
 {
   if(idle_)
-  return;
+    return;
+  // Camera svo_.cams_->getCameraVector();
 
   cv::Mat image;
   try
   {
-    image = cv::imdecode(cv::Mat(msg->data),1);
+    image = cv_bridge::toCvCopy(msg)->image;
   }
   catch (cv_bridge::Exception& e)
   {
@@ -393,7 +374,80 @@ void SvoInterface::monoCallback(const sensor_msgs::CompressedImageConstPtr& msg)
   imageCallbackPreprocessing(msg->header.stamp.toNSec());
 
   processImageBundle(images, msg->header.stamp.toNSec());
+  // std::cout << "Timestamp : " << msg->header.stamp.toSec() << "." << msg->header.stamp.toNSec() << std::endl;
 
+  publishResults(images, msg->header.stamp.toNSec());
+
+  if(svo_->stage() == Stage::kPaused && automatic_reinitialization_)
+    svo_->start();
+
+  imageCallbackPostprocessing();
+}
+
+void SvoInterface::monoCompressedCallback(const sensor_msgs::CompressedImageConstPtr& msg)
+{
+  if(idle_)
+  return;
+
+  cv::Mat image;
+  try
+  {
+    image = cv::imdecode(cv::Mat(msg->data),1);
+  }
+  catch (cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge exception: %s", e.what());
+  }
+
+  // publish the unwrapped image
+  // if (use_unwrapped_)
+  // {
+  //   // cv_bridge::CvImagePtr cv_ptr;
+  //   // cv_ptr = cv_bridge::toCvCopy(msg, "bgr8");
+
+  //   // // unwrapped the raw images via opencv
+  //   // cv::Mat img = cv_ptr->image;
+
+  //   cv::Mat unwrapped;
+  //   Eigen::VectorXd d = ncam_->getCamera(0).getDistortionParameters();
+  //   // std::cout<< d.transpose() << std::endl;
+  //   Eigen::VectorXd k = ncam_->getCamera(0).getIntrinsicParameters();
+  //   // std::cout<< k.transpose() << std::endl;
+  //   cv::Matx33d K(k(1),0,k(3),0, k(2), k(4), 0, 0, 1);
+    
+  //   cv::Vec4d D(d(0), d(1), d(2), d(3));
+  //   double xi = k(0);
+  //   cv::Size new_size(300*3.14159, 270);
+  //   cv::Matx33d Knew(new_size.width/3.1415/2, 0, 0,
+  //              0, new_size.height/3.1415*2, new_size.height/3.1415,
+  //              0, 0, 1);
+  //   cv::omnidir::undistortImage(image.clone(), unwrapped, K, D, xi, 
+  //                               cv::omnidir::RECTIFY_CYLINDRICAL, Knew, new_size);
+
+  //   // std::cout<< "image size: " << unwrapped.size()<<std::endl;     
+  //   cv_bridge::CvImage img_msg;
+  //   img_msg.header.frame_id = "unwrapped";
+  //   img_msg.header.stamp = ros::Time().fromNSec(msg->header.stamp.toNSec());
+  //   img_msg.image = unwrapped;
+  //   img_msg.encoding = sensor_msgs::image_encodings::BGR8;
+  //   // sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
+  //   pub_.publish(img_msg.toImageMsg());
+
+  // } 
+
+  std::vector<cv::Mat> images;
+  images.push_back(image.clone());
+
+  if(!setImuPrior(msg->header.stamp.toNSec()))
+  {
+    VLOG(3) << "Could not align gravity! Attempting again in next iteration.";
+    return;
+  }
+
+  imageCallbackPreprocessing(msg->header.stamp.toNSec());
+
+  processImageBundle(images, msg->header.stamp.toNSec());
+  
 
   publishResults(images, msg->header.stamp.toNSec());
 
@@ -529,15 +583,35 @@ void SvoInterface::monoLoop()
   ros::CallbackQueue queue;
   nh.setCallbackQueue(&queue);
 
-  image_transport::ImageTransport it(nh);
+  // image_transport::ImageTransport it(nh);
   // image_transport::TransportHints th("compressed");
+
+  bool use_compressed = vk::param<bool>(pnh_, "use_compressed", false);
+  use_unwrapped_ = vk::param<bool>(pnh_, "use_unwrapped", false);
 
   std::string image_topic =
       vk::param<std::string>(pnh_, "cam0_topic", "camera/image_raw");
-
-  // image_transport::Subscriber it_sub = it.subscribe(image_topic, 5, &svo::SvoInterface::monoCallback, this);
   
-  ros::Subscriber it_sub = nh.subscribe(image_topic, 10, &svo::SvoInterface::monoCallback,this); // this
+  // image_transport::ImageTransport it(pnh_);
+  // image_transport::Publisher pub_ = it.advertise("/camera/unwrapped", 10);
+
+  // pub_ = nh.advertise<sensor_msgs::ImagePtr>("camera/unwrapped",1);
+  // image_transport::Subscriber it_sub = it.subscribe(image_topic, 5, &svo::SvoInterface::monoCallback, this);
+
+  // if (use_compressed)
+  // {
+  ros::Subscriber it_sub = nh.subscribe(image_topic, 10, &svo::SvoInterface::monoCompressedCallback,this); // this
+  std::cout<< "Using compressed image" << std::endl;
+  // }
+
+  
+
+  // else
+  // {
+
+  // ros::Subscriber it_sub = nh.subscribe(image_topic, 10, &svo::SvoInterface::monoCallback,this);
+  // std::cout<< "Using image" << std::endl;
+  // }
 
 //  compressed_image_transport::CompressedSubscriber cit_sub;
   

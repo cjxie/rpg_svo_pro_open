@@ -1,0 +1,50 @@
+cameras:
+- T_B_C:
+    cols: 4
+    data: [-0.9999321598946068, 0.00763955876499192, -0.008792766935628676, 0.01758773294082182,
+      0.00952194278512465, 0.10134061597954853, -0.9948062183955649, -0.4809136404116403,
+      -0.006708816147791077, -0.9948224548605463, -0.10140648446294373, 0.061212099601162674,
+      0.0, 0.0, 0.0, 1.0]
+    rows: 4
+  calib_date: 0
+  camera:
+    distortion:
+      parameters:
+        cols: 1
+        data: [-0.049467923477117516, -0.017811029281946864, 0.010753874060541608,
+          -0.006022558061151141]
+        rows: 4
+      type: equidistant
+    image_height: 1080
+    image_width: 1920
+    intrinsics:
+      cols: 1
+      data: [1018.7587516443549, 1017.4857372701849, 953.3115228284072, 535.3403637608699]
+      rows: 4
+    label: cam0
+    line-delay-nanoseconds: 0
+    type: pinhole
+  description: /camera/preposition/image/compressed
+  serial_no: 0
+label: /data/imu_omni_calib/kalibr/bag/126_omni_front_imu1-camchain-imucam.yaml
+
+imu_params:
+  acc_max: 176.0
+  delay_imu_cam: 0.0
+  g: 9.8082
+  imu_rate: 100.0
+  max_imu_delta_t: 0.01
+  omega_max: 7.8
+  sigma_acc_bias_c: 6.155816933030256e-05
+  sigma_acc_c: 0.0010562607976011423
+  sigma_integration: 0.0
+  sigma_omega_bias_c: 1.898056026482718e-06
+  sigma_omega_c: 0.00010729974641957688
+
+imu_initialization:
+  acc_bias: [0.0, 0.0, 0.0]
+  acc_bias_sigma: 0.0010562607976011423
+  omega_bias: [0.0, 0.0, 0.0]
+  omega_bias_sigma: 0.00010729974641957688
+  velocity: [0.0, 0.0, 0.0]
+  velocity_sigma: 1.0

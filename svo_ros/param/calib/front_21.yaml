@@ -3,16 +3,16 @@ cameras:
     distortion:
       parameters:
         cols: 1
-        rows: 0
-        data: []
-      type: none
-    image_height: 540
-    image_width: 960
+        rows: 4
+        data: [-0.049467923477117516, -0.017811029281946864, 0.010753874060541608, -0.006022558061151141]
+      type: equidistant
+    image_height: 1080
+    image_width: 1920
     intrinsics:
       cols: 1
       rows: 4
       data: [
-        507.5757856397872, 507.51862648235243, 476.6620404631258, 268.2734994241562]
+        1018.7587516443549, 1017.4857372701849, 953.3115228284072, 535.3403637608699]
     label: cam
     line-delay-nanoseconds: 0
     type: pinhole

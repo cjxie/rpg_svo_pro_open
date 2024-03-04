@@ -1,0 +1,53 @@
+cameras:
+- camera:
+    distortion:
+      parameters:
+        cols: 1
+        rows: 0
+        data: []
+      type: none
+    image_height: 1080
+    image_width: 1920
+    intrinsics:
+      cols: 1
+      # xi, distortion, projection, principal_point, mask_relative_radii
+      data: [1.4893463159452232e+00,
+      -1.3932960335677894e-01, 2.0897434450955188e-01, 1.2441176365581993e-03, -7.3303813113414886e-03,
+      6.6336067067070303e+02, 6.5972141192489414e+02, 9.8610331025511766e+02, 5.7607048979764113e+02,
+      0.0, 1.0]
+      rows: 11
+    label: cam0
+    line-delay-nanoseconds: 0
+    type: omni
+    mask: omni_21_mask.png
+  T_B_C:
+    cols: 4
+    rows: 4
+    data: [-0.0017342636684842957, -0.9996360389247749, -0.026921775801650182, 0.010547532773356898,
+      -0.9998140919058326, 0.0022503089377198123, -0.01914987561841099, -0.3439323494038208,
+      0.019203488121796224, 0.02688355989207828, -0.999454101122951, 0.11731256829638605,
+      0.0, 0.0, 0.0, 1.0]
+label: /cata_ocam_model
+
+
+imu_params:
+  delay_imu_cam: 0.0
+  max_imu_delta_t: 0.01
+  acc_max: 176.0
+  omega_max: 7.8
+  sigma_omega_c: 0.00010729974641957688
+  sigma_acc_c: 0.0010562607976011423
+  sigma_omega_bias_c: 1.898056026482718e-06 
+  sigma_acc_bias_c: 6.155816933030256e-05
+  sigma_integration: 0.0
+  g: 9.8082
+  imu_rate: 100
+
+imu_initialization:
+  acc_bias: [0.0, 0.0, 0.0]
+  acc_bias_sigma: 0.1
+  omega_bias: [0.0, 0.0, 0.0]
+  omega_bias_sigma: 0.01
+  velocity: [0.0, 0.0, 0.0]
+  velocity_sigma: 2.0
+

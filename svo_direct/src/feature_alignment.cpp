@@ -795,6 +795,8 @@ bool alignPyr2D(
     const int width = img_ref.cols;
     const int height = img_ref.rows;
     const int step = img_ref.step; // should be number of bytes of each row
+    
+    // handle pyramid pixel offset while scaling images
     const Eigen::Vector2f px_ref_flt = px_ref_level_0.cast<float>() / scale - Eigen::Vector2f(halfpatch_size, halfpatch_size);
     const Eigen::Vector2i px_ref = px_ref_flt.cast<int>();
     const Eigen::Vector2f px_ref_offset = px_ref_flt - px_ref.cast<float>();
@@ -815,13 +817,16 @@ bool alignPyr2D(
     Eigen::Matrix2f H; H.setZero();
     for(int y=0; y<patch_size; ++y)
     {
+      // move pointer to the pixel location in image
       uint8_t* it = img_ref.data + (px_ref[1]+y)*step + (px_ref[0]);
       for(int x=0; x<patch_size; ++x, ++it, ++it_patch, ++it_dx, ++it_dy)
       {
         *it_patch = *it;
         *it_dx = static_cast<int16_t>(it[1]) - it[-1];
         *it_dy = static_cast<int16_t>(it[step]) - it[-step]; // divide by 2 missing
+        // dI/du
         Eigen::Vector2f J(*it_dx, *it_dy);
+        // 2x2
         H += J*J.transpose();
       }
     }
@@ -931,6 +936,7 @@ bool alignPyr2D(
         uint8_t* it = img_cur.data + (v_r+y)*step + (u_r);
         for(int x=0; x<patch_size; ++x, ++it, ++it_ref, ++it_ref_dx, ++it_ref_dy)
         {
+          // interpolate intensity 
           uint16_t cur = SVO_DESCALE(wTL*it[0] + wTR*it[1] + wBL*it[step] + wBR*it[step+1], SHIFT_BITS);
           //float cur = wTL*it[0] + wTR*it[1] + wBL*it[step] + wBR*it[step+1];
           float res = static_cast<float>(cur) - *it_ref;
@@ -961,6 +967,7 @@ bool alignPyr2D(
       }
     } // end iterations
 
+    // optimized pixel location for next level
     px_cur_level_0 = Keypoint((u+halfpatch_size+px_ref_offset[0])*scale,
         (v+halfpatch_size+px_ref_offset[1])*scale);
 

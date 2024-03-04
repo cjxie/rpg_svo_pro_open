@@ -24,6 +24,7 @@
 #include <pcl/point_types.h>
 #include <svo/global.h>
 #include <svo/common/types.h>
+#include <svo/common/camera_fwd.h>
 
 #ifdef SVO_LOOP_CLOSING
 #include <svo/online_loopclosing/keyframe.h>
@@ -72,6 +73,7 @@ public:
   std::vector<ros::Publisher> pub_cam_poses_;
   std::vector<ros::Publisher> pub_dense_;
   std::vector<image_transport::Publisher> pub_images_;
+  std::vector<image_transport::Publisher> pub_unwrap_;
 
   tf::TransformBroadcaster br_;
   bool publish_world_in_cam_frame_;
@@ -116,6 +118,10 @@ public:
 
   void publishImages(const std::vector<cv::Mat>& images,
                      const int64_t timestamp_nanoseconds);
+  
+  void publishUnwrapped(const std::vector<cv::Mat>& images,
+                     const int64_t timestamp_nanoseconds,
+                     CameraBundlePtr ncam_);
 
   void publishImagesWithFeatures(const FrameBundlePtr& frame_bundle,
                                  const int64_t timestamp,

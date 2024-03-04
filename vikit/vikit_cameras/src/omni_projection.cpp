@@ -464,10 +464,11 @@ Eigen::VectorXd OmniProjection::getIntrinsicParameters() const
   // intrinsics(5) = principal_point_(0);
   // intrinsics(6) = principal_point_(1);
 
-  intrinsics.resize(4);
-  for (int i = 0; i <4; i++)
+  intrinsics.resize(5);
+  intrinsics(0) = xi_;
+  for (int i = 1; i <5; i++)
   {
-    intrinsics(i) = projection_(i);
+    intrinsics(i) = projection_(i-1);
   }
   
   return intrinsics;

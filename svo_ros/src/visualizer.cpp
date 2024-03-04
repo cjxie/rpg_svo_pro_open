@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/ccalib/omnidir.hpp>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/Vector3Stamped.h>
@@ -178,6 +179,7 @@ Visualizer::Visualizer(const std::string& trace_dir,
   pub_pc_ = pnh_.advertise<PointCloud>("pointcloud", 1);
   pub_dense_.resize(n_cameras);
   pub_images_.resize(n_cameras);
+  pub_unwrap_.resize(n_cameras);
   pub_cam_poses_.resize(n_cameras);
   image_transport::ImageTransport it(pnh_);
   for (size_t i = 0; i < n_cameras; ++i)
@@ -185,6 +187,7 @@ Visualizer::Visualizer(const std::string& trace_dir,
     pub_dense_.at(i) = pnh_.advertise<svo_msgs::DenseInputWithFeatures>(
         "dense_input/" + std::to_string(i), 2);
     pub_images_.at(i) = it.advertise("image/" + std::to_string(i), 10);
+    pub_unwrap_.at(i) = it.advertise("unwrapped/" + std::to_string(i), 10);
     pub_cam_poses_.at(i) = pnh_.advertise<geometry_msgs::PoseStamped>(
         "pose_cam/" + std::to_string(i), 10);
   }
@@ -389,6 +392,64 @@ void Visualizer::publishImages(const std::vector<cv::Mat>& images,
     pub_images_.at(i).publish(img_msg.toImageMsg());
   }
 }
+
+void Visualizer::publishUnwrapped(const std::vector<cv::Mat>& images,
+                     const int64_t timestamp_nanoseconds, CameraBundlePtr ncam_)
+{
+ if (trace_id_ % img_pub_nth_ != 0)
+    return;
+  VLOG(100) << "Publish Unwrapped images.";
+
+  for (size_t i = 0; i < images.size(); ++i)
+  {
+    if (pub_unwrap_.at(i).getNumSubscribers() == 0)
+      continue;
+
+    // Downsample image for publishing.
+    // ImgPyr img_pyr;
+    cv::Mat image;
+    if (images[i].type() == CV_8UC1)
+    {
+      image = images[i];
+      // frame_utils::createImgPyramid(images[i], img_pub_level_ + 1, img_pyr);
+    }
+    else if (images[i].type() == CV_8UC3)
+    {
+      // cv::Mat gray_image;
+      cv::cvtColor(images[i], image, cv::COLOR_BGR2GRAY);
+      // frame_utils::createImgPyramid(gray_image, img_pub_level_ + 1, img_pyr);
+    }
+    else
+    {
+      LOG(FATAL) << "Unknown image type " << images[i].type() << "!";
+    }
+
+    cv::Mat unwrapped;
+    Eigen::VectorXd d = ncam_->getCamera(0).getDistortionParameters();
+    // std::cout<< d.transpose() << std::endl;
+    Eigen::VectorXd k = ncam_->getCamera(0).getIntrinsicParameters();
+    // std::cout<< k.transpose() << std::endl;
+
+    cv::Matx33d K(k(1),0,k(3),0, k(2), k(4), 0, 0, 1);
+    
+    cv::Vec4d D(d(0), d(1), d(2), d(3));
+    double xi = k(0);
+    cv::Size new_size(300*3.14159, 270);
+    cv::Matx33d Knew(new_size.width/3.1415/2, 0, 0,
+               0, new_size.height/3.1415*2, new_size.height/3.1415,
+               0, 0, 1);
+    cv::omnidir::undistortImage(image.clone(), unwrapped, K, D, xi, 
+                                cv::omnidir::RECTIFY_CYLINDRICAL, Knew, new_size);
+
+    cv_bridge::CvImage img_msg;
+    img_msg.header.stamp = ros::Time().fromNSec(timestamp_nanoseconds);
+    img_msg.header.frame_id = "cam" + std::to_string(i);
+    img_msg.image = unwrapped;
+    img_msg.encoding = sensor_msgs::image_encodings::MONO8;
+    pub_unwrap_.at(i).publish(img_msg.toImageMsg());
+
+  }      
+}        
 
 void Visualizer::publishImagesWithFeatures(const FrameBundlePtr& frame_bundle,
                                            const int64_t timestamp,

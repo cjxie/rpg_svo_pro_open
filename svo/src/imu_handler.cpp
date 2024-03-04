@@ -482,6 +482,7 @@ bool ImuHandler::getInitialAttitude(
   C_imu_world.col(1) = y;
   C_imu_world.col(2) = z;
 
+  LOG(WARNING) << "world in imu unit" << C_imu_world;
   VLOG(3) << "Initial Rotation = " << C_imu_world;
 
   R_imu_world = Quaternion(C_imu_world);

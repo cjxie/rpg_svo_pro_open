@@ -19,6 +19,7 @@ yaml.add_representer(UnsortableOrderedDict, yaml.representer.SafeRepresenter.rep
 parser = argparse.ArgumentParser(description='Convert calibration from Kalibr to SVO format.')
 parser.add_argument('--kalibr', help='kalibr camchain-imu yaml file.')
 parser.add_argument('--imu', help='imu parameters yaml file.')
+parser.add_argument('--out', help='output path')
 args = parser.parse_args(sys.argv[1:])
 
 if args.kalibr is None:
@@ -97,7 +98,8 @@ if has_imu:
     Sii['imu_initialization']['omega_bias_sigma'] = I['gyroscope_noise_density']
     Sii['imu_initialization']['acc_bias_sigma'] = I['accelerometer_noise_density']
 
-output_file = 'svo_' + args.kalibr
+# output_file = 'svo_' + args.kalibr
+output_file =  args.out
 print('Writing to {0}.'.format(output_file))
 f = open(output_file, 'w')
 f.write(yaml.dump(S, default_flow_style=None) )

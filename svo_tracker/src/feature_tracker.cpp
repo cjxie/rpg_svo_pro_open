@@ -58,12 +58,16 @@ size_t FeatureTracker::trackFrameBundle(const FrameBundlePtr& nframe_kp1)
   // TODO(cfo): Datastructure could be simplified. We need only the first frame in track.
   for(size_t frame_index = 0; frame_index < bundle_size_; ++frame_index)
   {
+    // tracks for each camera
+    // each feature has a track in tracks
     FeatureTracks& tracks = active_tracks_.at(frame_index);
+    // frame ptr for current frame
     const FramePtr& cur_frame = nframe_kp1->at(frame_index);
     std::vector<size_t> remove_indices;
     Keypoints new_keypoints(2, tracks.size());
     Scores new_scores(tracks.size());
     TrackIds new_track_ids(tracks.size());
+
     size_t new_keypoints_counter = 0;    
     for(size_t track_index = 0; track_index < tracks.size(); ++track_index)
     {

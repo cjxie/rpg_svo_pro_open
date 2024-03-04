@@ -96,17 +96,21 @@ bool AbstractInitialization::trackFeaturesAndCheckDisparity(const FrameBundlePtr
   const double avg_disparity =
       std::accumulate(disparity.begin(), disparity.end(), 0.0) / disparity.size();
   VLOG(3) << "Init: Tracked " << num_tracked_tot << " features with disparity = " << avg_disparity;
+  
+  // not enought features -> reset tracker
   if(num_tracked_tot < options_.init_min_features)
   {
     tracker_->resetActiveTracks();
     for(const FramePtr& frame : frames->frames_)
       frame->clearFeatureStorage();
+    // the first frame is not used, since no features are detected.
     const size_t n = tracker_->initializeNewTracks(frames);
     VLOG(3) << "Init: New Tracks initialized = " << n;
     frames_ref_ = frames;
     R_ref_world_ = R_cur_world_;
     return false;
   }
+  // camera displacement is small, keep moving
   if(avg_disparity < options_.init_min_disparity)
     return false;
   return true;

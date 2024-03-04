@@ -7,7 +7,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/Imu.h>
-
+#include <image_transport/image_transport.h>
 
 #include <svo/common/types.h>
 #include <svo/common/camera_fwd.h>
@@ -37,6 +37,8 @@ public:
   // ROS subscription and publishing.
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
+  bool use_unwrapped_ = false;
+  image_transport::Publisher pub_;
   PipelineType pipeline_type_;
   ros::Subscriber sub_remote_key_;
   std::string remote_input_;
@@ -79,9 +81,9 @@ public:
       const int64_t timestamp_nanoseconds);
 
   // Subscription and callbacks
-  // void monoCallback(const sensor_msgs::ImageConstPtr& msg);
+  void monoCallback(const sensor_msgs::ImageConstPtr& msg);
   // Subscribe CompressedImage
-  void monoCallback(const sensor_msgs::CompressedImageConstPtr& msg);
+  void monoCompressedCallback(const sensor_msgs::CompressedImageConstPtr& msg);
 
   void stereoCallback(
       const sensor_msgs::ImageConstPtr& msg0,

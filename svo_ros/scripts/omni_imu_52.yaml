@@ -1,0 +1,50 @@
+cameras:
+- T_B_C:
+    cols: 4
+    data: [-0.0017342636684842957, -0.9996360389247749, -0.026921775801650182, 0.010547532773356898,
+      -0.9998140919058326, 0.0022503089377198123, -0.01914987561841099, -0.3439323494038208,
+      0.019203488121796224, 0.02688355989207828, -0.999454101122951, 0.11731256829638605,
+      0.0, 0.0, 0.0, 1.0]
+    rows: 4
+  calib_date: 0
+  camera:
+    distortion:
+      parameters:
+        cols: 1
+        data: [-0.13121157137149742, 0.12888030735192463, -0.003943699203803137, -0.007595729072322572]
+        rows: 4
+      type: radtan
+    image_height: 1080
+    image_width: 1920
+    intrinsics:
+      cols: 1
+      data: [1.4100485746796152, 644.4433142802144, 637.3570202012295, 975.2472201441523,
+        572.1541399751198]
+      rows: 5
+    label: cam0
+    line-delay-nanoseconds: 0
+    type: omni
+  description: /camera/panoramic/image/compressed
+  serial_no: 0
+label: /data/imu_omni_calib/kalibr/bag/125_omni_imu_april0-camchain-imucam.yaml
+
+imu_params:
+  acc_max: 176.0
+  delay_imu_cam: 0.0
+  g: 9.8082
+  imu_rate: 100.0
+  max_imu_delta_t: 0.01
+  omega_max: 7.8
+  sigma_acc_bias_c: 6.155816933030256e-05
+  sigma_acc_c: 0.0010562607976011423
+  sigma_integration: 0.0
+  sigma_omega_bias_c: 1.898056026482718e-06
+  sigma_omega_c: 0.00010729974641957688
+
+imu_initialization:
+  acc_bias: [0.0, 0.0, 0.0]
+  acc_bias_sigma: 0.0010562607976011423
+  omega_bias: [0.0, 0.0, 0.0]
+  omega_bias_sigma: 0.00010729974641957688
+  velocity: [0.0, 0.0, 0.0]
+  velocity_sigma: 1.0

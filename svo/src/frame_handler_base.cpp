@@ -361,7 +361,7 @@ bool FrameHandlerBase::addFrameBundle(const FrameBundlePtr& frame_bundle)
     }
   }
 
-  // Perform tracking.
+  // Perform tracking, check it out in frame_handler_mono.
   update_res_ = processFrameBundle();
 
   // We start the backend first, since it is the most time crirical
